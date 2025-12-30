@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+    if [ ! -d ".claude/.agent-todos" ]; then
+        mkdir -p ".claude/.agent-todos"
+        echo "Created .claude/.agent-todos directory"
+    else
+        echo ".claude/.agent-todos already exists"
+    fi
+    exit 0
+fi
+
+case "$1" in
+    plan)
+        claude-yolo -p "Use feature planner to plan the development of @project.md"
+        ;;
+    dev)
+        claude-yolo -p "Use feature developer to develop the next feature"
+        ;;
+    loop)
+        while [ -n "$(find .claude/.agent-todos -maxdepth 1 -type f ! -name '*\[done\]*' -print -quit 2>/dev/null)" ]; do
+            claude-yolo -p "Use feature developer to develop the next feature"
+            sleep 1
+        done
+        echo "All tasks completed"
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Usage: claudeto [plan|dev|loop]"
+        exit 1
+        ;;
+esac

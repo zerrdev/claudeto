@@ -83,3 +83,11 @@ Tasks are marked as complete by adding `[done]` to the filename.
 ## Requirements
 
 - [claude-yolo](https://github.com/zerrdev/claude-yolo) - Claude CLI wrapper for running AI agents
+
+### Installing claude-yolo
+
+Before using claudeto, you need to install claude-yolo:
+
+```bash
+npm install -g claude-yolo
+```

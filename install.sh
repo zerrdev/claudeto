@@ -19,6 +19,16 @@ curl -fsSL "$REPO_URL/claudeto" -o "$INSTALL_DIR/claudeto"
 # Make executable
 chmod +x "$INSTALL_DIR/claudeto"
 
+# Install agent files to ~/.claude/agents
+AGENTS_DIR="$HOME/.claude/agents"
+mkdir -p "$AGENTS_DIR"
+
+echo "Installing agents..."
+for agent in claudeto-developer.md claudeto-planner.md; do
+    curl -fsSL "$REPO_URL/agents/$agent" -o "$AGENTS_DIR/$agent"
+    echo "  Installed $agent"
+done
+
 # Add to PATH in shell profile if not already there
 add_to_path() {
     local profile="$1"

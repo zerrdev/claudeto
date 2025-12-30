@@ -19,6 +19,22 @@ $ScriptPath = Join-Path $InstallDir "claudeto.cmd"
 
 Invoke-WebRequest -Uri $ScriptUrl -OutFile $ScriptPath
 
+# Install agent files to ~/.claude/agents
+$AgentsDir = "$env:USERPROFILE\.claude\agents"
+if (!(Test-Path $AgentsDir)) {
+    New-Item -ItemType Directory -Path $AgentsDir -Force | Out-Null
+}
+
+Write-Host "Installing agents..." -ForegroundColor Cyan
+
+$Agents = @("claudeto-developer.md", "claudeto-planner.md")
+foreach ($Agent in $Agents) {
+    $AgentUrl = "$RepoUrl/agents/$Agent"
+    $AgentPath = Join-Path $AgentsDir $Agent
+    Invoke-WebRequest -Uri $AgentUrl -OutFile $AgentPath
+    Write-Host "  Installed $Agent" -ForegroundColor Gray
+}
+
 # Add to PATH if not already there
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($UserPath -notlike "*$InstallDir*") {

@@ -13,7 +13,8 @@ echo "Installing claudeto..."
 # Create installation directory
 mkdir -p "$INSTALL_DIR"
 
-# Download the claudeto script
+# Download the claudeto script (remove existing to ensure fresh download)
+rm -f "$INSTALL_DIR/claudeto"
 curl -fsSL "$REPO_URL/claudeto" -o "$INSTALL_DIR/claudeto"
 
 # Make executable

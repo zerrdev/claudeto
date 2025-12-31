@@ -24,11 +24,12 @@ The script will be installed to `~/.claudeto` and added to your PATH. Restart yo
 claudeto [command]
 
 Commands:
-  (none)    Create .claude/.agent-todos directory if not exists
-  plan      Run feature planner to plan development of @project.md
-  dev       Run feature developer to develop the next feature
-  loop      Continuously develop features until all todos are done
-  help      Show usage information
+  (none)        Create .claude/.agent-todos directory if not exists
+  plan          Run planner with a custom task (e.g., claudeto plan "improve auth")
+  project-plan  Run planner to plan development of @project.md
+  dev           Run developer to develop the next feature
+  loop          Continuously develop features until all todos are done
+  help          Show usage information
 ```
 
 ### Initialize Project
@@ -39,13 +40,27 @@ claudeto
 
 Creates the `.claude/.agent-todos` directory if it doesn't exist. This directory is used to track pending features and tasks.
 
-### Plan Features
+### Plan Custom Task
 
 ```bash
-claudeto plan
+claudeto plan "your task description"
 ```
 
-Runs the feature planner agent to analyze `project.md` and break down the project into actionable development tasks.
+Runs the planner agent with a custom task. Examples:
+
+```bash
+claudeto plan "add user authentication"
+claudeto plan "refactor the database layer"
+claudeto plan "improve error handling"
+```
+
+### Plan from Project File
+
+```bash
+claudeto project-plan
+```
+
+Runs the planner agent to analyze `project.md` and break down the project into actionable development tasks.
 
 ### Develop Next Feature
 
@@ -53,7 +68,7 @@ Runs the feature planner agent to analyze `project.md` and break down the projec
 claudeto dev
 ```
 
-Runs the feature developer agent to implement the next pending feature from the `.agent-todos` directory.
+Runs the developer agent to implement the next pending feature from the `.agent-todos` directory.
 
 ### Continuous Development Loop
 
@@ -64,7 +79,7 @@ claudeto loop
 Continuously develops features until all tasks are complete. The loop:
 
 1. Checks for incomplete tasks in `.claude/.agent-todos`
-2. Runs the feature developer on the next pending task
+2. Runs the developer on the next pending task
 3. Repeats until no pending tasks remain
 
 ## Directory Structure
@@ -79,6 +94,18 @@ Continuously develops features until all tasks are complete. The loop:
 ```
 
 Tasks are marked as complete by adding `[done]` to the filename.
+
+## Configuration
+
+You can customize the planner and developer prompts by creating a config file at `~/.claudeto/config`:
+
+```bash
+# ~/.claudeto/config
+CLAUDETO_PLANNER="claudeto planner"
+CLAUDETO_DEV="claudeto developer"
+```
+
+These variables control the prompt prefixes used when invoking Claude agents.
 
 ## Requirements
 

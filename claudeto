@@ -1,34 +1,79 @@
 #!/bin/bash
 
-set -e
+# claudeto - CLI tool for managing Claude agent todos
 
-if [ -z "$1" ]; then
-    if [ ! -d ".claude/.agent-todos" ]; then
-        mkdir -p ".claude/.agent-todos"
-        echo "Created .claude/.agent-todos directory"
-    else
-        echo ".claude/.agent-todos already exists"
-    fi
-    exit 0
+TODOS_DIR=".claude/.agent-todos"
+CONFIG_FILE="$HOME/.claudeto/config"
+
+# Load config from ~/.claudeto/config if it exists
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
 fi
 
-case "$1" in
-    plan)
-        claude-yolo -p "Use feature planner to plan the development of @project.md"
+# Set defaults if not configured
+CLAUDETO_PLANNER="${CLAUDETO_PLANNER:-claudeto planner}"
+CLAUDETO_DEV="${CLAUDETO_DEV:-claudeto developer}"
+
+# Ensure the todos directory exists
+ensure_todos_dir() {
+    if [ ! -d "$TODOS_DIR" ]; then
+        mkdir -p "$TODOS_DIR"
+        echo "Created $TODOS_DIR directory"
+    fi
+}
+
+# Show usage information
+show_usage() {
+    echo "Usage: claudeto [command]"
+    echo ""
+    echo "Commands:"
+    echo "  (none)    Create .claude/.agent-todos directory if not exists"
+    echo "  plan      Run claudeto planner with a custom task (e.g., claudeto plan \"improve auth\")"
+    echo "  project-plan  Run claudeto planner to plan development of @project.md"
+    echo "  dev       Run claudeto developer to develop the next feature"
+    echo "  loop      Continuously develop features until all todos are done"
+    echo ""
+}
+
+# Main logic
+case "${1:-}" in
+    "")
+        # No argument: just ensure directory exists
+        ensure_todos_dir
         ;;
-    dev)
-        claude-yolo -p "Use feature developer to develop the next feature"
+    "plan")
+        shift
+        if [ -z "$1" ]; then
+            echo "Error: plan command requires a task description"
+            echo "Usage: claudeto plan \"your task description\""
+            exit 1
+        fi
+        task="$*"
+        ensure_todos_dir
+        claude-yolo -p "Use $CLAUDETO_PLANNER to $task"
         ;;
-    loop)
-        while [ -n "$(find .claude/.agent-todos -maxdepth 1 -type f ! -name '*\[done\]*' -print -quit 2>/dev/null)" ]; do
-            claude-yolo -p "Use feature developer to develop the next feature"
+    "project-plan")
+        ensure_todos_dir
+        claude-yolo -p "Use $CLAUDETO_PLANNER to plan the development of @project.md"
+        ;;
+    "dev")
+        ensure_todos_dir
+        claude-yolo -p "Use $CLAUDETO_DEV to develop the next feature"
+        ;;
+    "loop")
+        ensure_todos_dir
+        until [ -z "$(find "$TODOS_DIR" -maxdepth 1 -type f ! -name '*\[done\]*' -print -quit)" ]; do
+            claude-yolo -p "Use $CLAUDETO_DEV to develop the next feature"
             sleep 1
         done
-        echo "All tasks completed"
+        echo "All todos completed!"
+        ;;
+    "help"|"--help"|"-h")
+        show_usage
         ;;
     *)
         echo "Unknown command: $1"
-        echo "Usage: claudeto [plan|dev|loop]"
+        show_usage
         exit 1
         ;;
 esac
